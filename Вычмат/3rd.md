@@ -25,6 +25,7 @@ $I_{точн}=F(x)=F(2)-F(0)=\frac{2}{3}$
 $$
 \int^b_{a}f(x)dx\approx h*\sum^{n=6}_{i=0}C_{i}*f(x_{i})
 $$$c^0_{6}*f(0)+c^1_{6}*f\left( \frac{1}{3} \right)+\dots+c^6_{6}*f(2)$=$\frac{41}{420}*(-7)+\frac{18}{35}*(-\frac{146}{27})+\frac{9}{140}*\left(-\frac{109}{27} \right)+\frac{68}{105}*(-2)+\frac{9}{140}*\frac{43}{27}+\frac{18}{35}*\frac{206}{27}+\frac{41}{420}*17$=$\frac{2}{3}$
+Результат не отличается от точного
 Ссылка на расчет на [WolframAlpha ](https://www.wolframalpha.com/input?i=%5Cfrac%7B41%7D%7B420%7D*%28-7%29%2B%5Cfrac%7B18%7D%7B35%7D*%28-%5Cfrac%7B146%7D%7B27%7D%29%2B%5Cfrac%7B9%7D%7B140%7D*%5Cleft%28-%5Cfrac%7B109%7D%7B27%7D+%5Cright%29%2B%5Cfrac%7B68%7D%7B105%7D*%28-2%29%2B%5Cfrac%7B9%7D%7B140%7D*%5Cfrac%7B43%7D%7B27%7D%2B%5Cfrac%7B18%7D%7B35%7D*%5Cfrac%7B206%7D%7B27%7D%2B%5Cfrac%7B41%7D%7B420%7D*17)
 
 **3. Вычислить интеграл по формулам средних прямоугольников, трапеций и Симпсона при** $n=10$
@@ -46,12 +47,11 @@ $$
 I_{лев}=
 \int^b_{a}f(x)dx=
 h\sum^{n-1}_{i=0}y_{i}=
-[h=0.2;b-a=2-0=2;x_{i}=a+ih,x_{0}=0,x_{1}=0.2,\dots,x_{9}=1.8]=
-0.2\sum^9_{i=0}y_{i}=
--1.64
+\left[x_{i}=a+ih,x_{0}=0,x_{1}=0.2,\dots,x_{9}=1.8 \right]
+=0.2\sum^9_{i=0}y_{i}=-1.64
 $$
 $$
-I_{ср}=\int^b_{a}f(x)dx\approx \sum^n_{i=1}h_{i}f(x_{i-0.5})
+I_{ср}=\int^b_{a}f(x)dx\approx h\sum^{n-1}_{i=1}f(x_{i-0.5})\approx3.1
 $$
 Код для нахождения интеграла методом средних прямоугольников:
 ```Python
@@ -59,17 +59,22 @@ h = 0.2
 a = 0
 n = 10
 def f(x):
-	return 4 * x ** 3 - 5 * x ** 2 + 6 * x - 7
+    return 4*x**3 - 5*x**2 + 6*x - 7
 summ = 0
 for i in range(n):
-	summ += f(a + i * h + h / 2)
-print(summ)
-```
+    mid = a + i*h + h/2
+    summ += f(mid)
+I = h * summ
+print(I)
 
-Найдем интеграл методом трапеций:
+```
+Результат отличается на $|0.62-\frac{2}{3}|\approx0,04(6)$
+
+2. Найдем интеграл методом трапеций:
 $$
 I_{трап}=\int^2_{0}x^2dx=h*(\frac{y_{0}+y_{n}}{2}+\sum^{n-1}_{i=1}y_{i})=[h=0.2;a=0;b=2;x_{0}=]=0.2*(\frac{f(0)+f(2)}{2}+\sum^{10-1=9}_{i=1}f(a+i*h))=0.76
 $$
+Значение интеграла отличается на $|0.76-\frac{2}{3}|=0,09(3)$
 Код для нахождения интеграла методом трапеций:
 ```Python
 a = 0
@@ -85,15 +90,15 @@ for i in range(1, n):
 print(summ * h)
 ```
 
-Найдем интеграл методом Симпсона:
+3. Найдем интеграл методом Симпсона:
 
 $$
 \int^b_{a}f(x)dx\approx \frac{h}{3}[f(x_{0})+4\sum^{n-1}_{i=1}f(x_{i})+2\sum^{n-2}_{i=2}f(x_{i})+f(x_{n})]=
 $$
 $$
-\frac{h}{3}*(f(x_{0})+4*(f(x_{1})+f(x_{3})+\dots+f(x_{9}))+2(f(x_{2})+f(x_{4})+\dots+f(x_{8}))+f(x_{10}))=0.666666666666668
+\frac{h}{3}*(f(x_{0})+4*(f(x_{1})+f(x_{3})+\dots+f(x_{9}))+2(f(x_{2})+f(x_{4})+\dots+f(x_{8}))+f(x_{10}))=0.(6)
 $$
-
+Значение интеграла, найденное методом Симпсона не отличается от точного значения
 
 Код для нахождения интеграла методом Симпсона:
 ```Python
@@ -111,257 +116,4 @@ S_even = sum(y[i] for i in range(2, n, 2))
 I_simpson = h/3 * (y[0] + 4*S_odd + 2*S_even + y[n])
 print(I_simpson)
 ```
-
-**Вычислительная реализация задачи**
-```Python
-import math
-
-
-MAX_BREAKPOINTS = 10_000
-
-def f1(x):
-    return x**2
-
-def f2(x):
-    return math.sin(x)
-
-def f3(x):
-    return math.exp(x)
-
-def f4(x):
-    return 1 / x**2
-
-def f5(x):
-    return 1 / x
-
-def f6(x):
-    return 1 / math.sqrt(x)
-
-def f7(x):
-    return -3*x**3 - 5*x**2 + 4*x - 2
-
-def f8(x):
-    return 10
-
-def f9(x):
-    return 1 / math.sqrt(2*x - x**2)
-
-functions = [f1, f2, f3, f4, f5, f6, f7, f8, f9]
-
-def rectangle_rule(func, a, b, n, mode="middle"):
-    h = (b - a) / n
-    result = 0
-
-    if mode == "left":
-        for i in range(n):
-            result += func(a + i * h)
-
-    elif mode == "right":
-        for i in range(1, n + 1):
-            result += func(a + i * h)
-
-    else:
-        for i in range(n):
-            result += func(a + (i + 0.5) * h)
-
-    result *= h
-    return result
-
-
-def trapezoid_rule(func, a, b, n):
-    h = (b - a) / n
-    result = (func(a) + func(b)) / 2
-
-    for i in range(1, n):
-        result += func(a + i * h)
-
-    result *= h
-    return result
-
-
-def simpson_rule(func, a, b, n):
-    h = (b - a) / n
-    result = func(a) + func(b)
-
-    for i in range(1, n):
-        coef = 3 + (-1)**(i + 1)
-        result += coef * func(a + i * h)
-
-    result *= h / 3
-    return result
-
-
-methods = {
-    "rectangle_left": lambda func, a, b, n: rectangle_rule(func, a, b, n, mode="left"),
-    "rectangle_right": lambda func, a, b, n: rectangle_rule(func, a, b, n, mode="right"),
-    "rectangle_middle": rectangle_rule,
-    "trapezoid": trapezoid_rule,
-    "simpson": simpson_rule
-}
-
-def compute_integral(func, a, b, epsilon, method):
-    n = 4
-    runge_coef = {"rectangle_left": 1, "rectangle_right": 1, "rectangle_middle": 3, "trapezoid": 3, "simpson": 15}
-    coef = runge_coef[method]
-
-    result = methods[method](func, a, b, n)
-    error = math.inf
-
-    while error > epsilon:
-        n *= 2
-        new_result = methods[method](func, a, b, n)
-        error = abs(new_result - result) / coef
-
-        result = new_result
-
-    return result, n
-
-
-def get_discontinuity_points(func, a, b, n):
-    breakpoints = []
-
-    try:
-        func(a)
-    except (ZeroDivisionError, OverflowError, ValueError):
-        breakpoints.append(a)
-
-    try:
-        func(b)
-    except (ZeroDivisionError, OverflowError, ValueError):
-        breakpoints.append(b)
-
-    try:
-        func((a + b) / 2)
-    except (ZeroDivisionError, OverflowError, ValueError):
-        breakpoints.append((a + b) / 2)
-
-    h = (b - a) / n
-    for i in range(n):
-        point = a + i * h
-        try:
-            func(a + i * h)
-        except (ZeroDivisionError, OverflowError, ValueError):
-            breakpoints.append(point)
-
-            if len(breakpoints) >= MAX_BREAKPOINTS:
-                return get_discontinuity_points(func, a, b, n // 10)
-
-    return list(set(breakpoints))
-
-
-def try_to_compute(func, x):
-    try:
-        return func(x)
-    except Exception:
-        return None
-
-
-if __name__ == "__main__":
-    while (True):
-        print("Выберите функцию:")
-        print("1. x^2")
-        print("2. sin(x)")
-        print("3. e^x")
-        print("4. 1/x^2")
-        print("5. 1/x")
-        print("6. 1/sqrt(x)")
-        print("7. -3x^3 - 5x^2 + 4x - 2")
-        print("8. 10")
-        print("9. 1 / sqrt(2x - x^2)")
-
-        chosen_f = int(input("Ваш выбор: ")) - 1
-        func = functions[chosen_f]
-
-        if chosen_f not in [0, 2, 3, 4, 5, 6, 7, 8]:
-            print("Пожалуйста, выберите корректный номер функции!\n")
-            continue
-
-        while True:
-            try:
-                a = float(input("Введите начальный предел интегрирования: "))
-                b = float(input("Введите конечный предел интегрирования: "))
-
-                if a >= b:
-                    print(f'{a} >= {b}. Пожалуйста, введите a < b')
-                else:
-                    break
-            except Exception:
-                print("! Ошибка ввода: введите пределы интегрирования еще раз!\n")
-
-        breakpoints = get_discontinuity_points(func, a, b, math.ceil(b - a) * 1_000)
-
-        # Если разрыв: установить сходимость
-        if len(breakpoints) != 0:
-            print(f"! Обнаружен точка разрыва: функция имеет разрыв или не существует в точках {breakpoints}.")
-
-            eps = 0.00001
-            converges = True
-            for bp in breakpoints:
-                y1 = try_to_compute(func, bp - eps)
-                y2 = try_to_compute(func, bp + eps)
-                if y1 is not None and y2 is not None and abs(y1 - y2) > eps or (y1 == y2 and y1 is not None):
-                    converges = False
-                    break
-
-            if not converges:
-                # расходящийся => выводить сообщение: «Интеграл не существует»
-                print('- Интеграл не существует: интеграл не сходится.')
-            else:
-                # сходящийся => реализовать в программе вычисление несобственных интегралов 2 рода
-                print('+ Интеграл сходится.')
-                epsilon = float(input("Введите требуемую точность вычислений: "))
-
-                for method in methods:
-                    print(f"\n*   Метод: {method}")
-
-                    if len(breakpoints) == 1:
-                        if a in breakpoints:
-                            a += eps
-                        elif b in breakpoints:
-                            b -= eps
-                    else:
-                        res = 0
-                        n = 0
-                        if not (try_to_compute(func, a) is None or try_to_compute(func, breakpoints[0] - eps) is None):
-                            results = compute_integral(func, a, breakpoints[0] - eps, epsilon, method)
-                            res += results[0]
-                            n += results[1]
-
-                        if not (try_to_compute(func, b) is None or try_to_compute(func, breakpoints[0] + eps) is None):
-                            results = compute_integral(func, breakpoints[0] + eps, b, epsilon, method)
-                            res += results[0]
-                            n += results[1]
-
-                        for bi in range(len(breakpoints) - 1):
-                            b_cur = breakpoints[bi]
-                            b_next = breakpoints[bi + 1]
-
-                            if not (try_to_compute(func, b_cur + eps) is None or try_to_compute(func, b_next - eps) is None):
-                                results =  compute_integral(func, b_cur + eps, b_next - eps, epsilon, method)
-                                res += results[0]
-                                n += results[1]
-
-                        print(f"Значение интеграла: {res}")
-                        print(f"Число разбиений интервала интегрирования для достижения требуемой точности: n = {n}")
-
-                    if not breakpoints or a - eps in breakpoints or b + eps in breakpoints:
-                        result, n = compute_integral(func, a, b, epsilon, method)
-                        if result is not None and n is not None:
-                            print(f"Значение интеграла: {result}")
-                            print(f"Число разбиений интервала интегрирования для достижения требуемой точности: n = {n}")
-        else:
-            # Если нет разрыва: просто вычисляем
-            epsilon = float(input("Введите требуемую точность вычислений: "))
-
-            for method in methods:
-                print(f"\n*   Метод: {method}")
-                result, n = compute_integral(func, a, b, epsilon, method)
-
-                if result is not None and n is not None:
-                    print(f"Значение интеграла: {result}")
-                    print(f"Число разбиений интервала интегрирования для достижения требуемой точности: n = {n}")
-
-        if input('\nЕще раз? [y/n]: ') == 'n':
-            print("Спасибо за использование программы!")
-            break
-```
+Значение интеграла не отличается от точного
